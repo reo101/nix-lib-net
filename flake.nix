@@ -9,11 +9,17 @@
   };
 
   outputs = inputs: {
-    overlays.default =
-      (final: prev:
-        (import ./nix/net-extensions.nix {
-          lib = prev.lib;
-          libNet = (import "${inputs.lib-net.outPath}/net.nix" { lib = prev.lib; }).lib.net;
-        }));
+    overlays = rec {
+      default =
+        (final: prev: {
+          lib = prev.recursiveUpdate prev (raw final.lib prev.lib);
+        });
+      raw =
+        (final: prev:
+          (import ./nix/net-extensions.nix {
+            lib = prev;
+            libNet = (import "${inputs.lib-net.outPath}/net.nix" { lib = prev; }).lib.net;
+          }));
+    };
   };
 }
